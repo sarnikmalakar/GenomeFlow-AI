@@ -1,0 +1,94 @@
+.
+├── build
+│   ├── CMakeCache.txt
+│   ├── CMakeFiles
+│   │   ├── 4.2.3
+│   │   │   ├── CMakeCCompiler.cmake
+│   │   │   ├── CMakeCXXCompiler.cmake
+│   │   │   ├── CMakeDetermineCompilerABI_C.bin
+│   │   │   ├── CMakeDetermineCompilerABI_CXX.bin
+│   │   │   ├── CMakeSystem.cmake
+│   │   │   ├── CompilerIdC
+│   │   │   │   ├── a.out
+│   │   │   │   ├── CMakeCCompilerId.c
+│   │   │   │   └── tmp
+│   │   │   └── CompilerIdCXX
+│   │   │       ├── a.out
+│   │   │       ├── CMakeCXXCompilerId.cpp
+│   │   │       └── tmp
+│   │   ├── cmake.check_cache
+│   │   ├── CMakeConfigureLog.yaml
+│   │   ├── CMakeDirectoryInformation.cmake
+│   │   ├── CMakeScratch
+│   │   ├── cpu_benchmark.dir
+│   │   │   ├── build.make
+│   │   │   ├── cmake_clean.cmake
+│   │   │   ├── compiler_depend.make
+│   │   │   ├── compiler_depend.ts
+│   │   │   ├── DependInfo.cmake
+│   │   │   ├── depend.make
+│   │   │   ├── flags.make
+│   │   │   ├── link.d
+│   │   │   ├── link.txt
+│   │   │   ├── progress.make
+│   │   │   └── simulator
+│   │   │       ├── benchmark
+│   │   │       │   ├── cpu_benchmark.cpp.o
+│   │   │       │   └── cpu_benchmark.cpp.o.d
+│   │   │       └── cpu
+│   │   │           ├── fitness.cpp.o
+│   │   │           └── fitness.cpp.o.d
+│   │   ├── FindOpenMP
+│   │   │   ├── ompver_C.bin
+│   │   │   └── ompver_CXX.bin
+│   │   ├── genomeflow_cpu.dir
+│   │   │   ├── build.make
+│   │   │   ├── cmake_clean.cmake
+│   │   │   ├── compiler_depend.make
+│   │   │   ├── compiler_depend.ts
+│   │   │   ├── DependInfo.cmake
+│   │   │   ├── depend.make
+│   │   │   ├── flags.make
+│   │   │   ├── link.d
+│   │   │   ├── link.txt
+│   │   │   ├── progress.make
+│   │   │   └── simulator
+│   │   │       └── cpu
+│   │   │           ├── clone.cpp.o
+│   │   │           ├── clone.cpp.o.d
+│   │   │           ├── fitness.cpp.o
+│   │   │           ├── fitness.cpp.o.d
+│   │   │           ├── main.cpp.o
+│   │   │           └── main.cpp.o.d
+│   │   ├── InstallScripts.json
+│   │   ├── Makefile2
+│   │   ├── Makefile.cmake
+│   │   ├── pkgRedirects
+│   │   ├── progress.marks
+│   │   └── TargetDirectories.txt
+│   ├── cmake_install.cmake
+│   ├── cpu_benchmark
+│   ├── genomeflow_cpu
+│   └── Makefile
+├── CMakeLists.txt
+├── simulator
+│   ├── benchmark
+│   │   ├── cpu_benchmark.cpp
+│   │   ├── cpu_benchmark.md
+│   │   └── gpu_benchmark.cpp
+│   ├── cpu
+│   │   ├── clone.cpp
+│   │   ├── fitness.cpp
+│   │   └── main.cpp
+│   ├── gpu
+│   │   ├── fitness_kernel.hip
+│   │   ├── gpu_runner.hpp
+│   │   └── gpu_utils.hpp
+│   └── include
+│       ├── clone.hpp
+│       ├── fitness.hpp
+│       ├── genome.hpp
+│       └── population.hpp
+└── structure.txt
+
+23 directories, 69 files

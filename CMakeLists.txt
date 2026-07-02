@@ -12,6 +12,7 @@ add_executable(
     simulator/cpu/main.cpp
     simulator/cpu/fitness.cpp
     simulator/cpu/clone.cpp
+    simulator/cpu/dataset.cpp
 )
 
 target_include_directories(

@@ -4,7 +4,6 @@
 #include <cstddef>
 
 #include "genome.hpp"
-#include "population.hpp"
 
 struct CloneInfo
 {

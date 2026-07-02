@@ -8,6 +8,7 @@
 #include "fitness.hpp"
 #include "clone.hpp"
 #include "dataset.hpp"
+#include "clone_stats.hpp"
 
 void mutate(
     Genome& genome,
@@ -28,14 +29,13 @@ void mutate(
     genome |= (1u << gene);
 }
 
-int main()
-{
+void run_simulation(int simulation_id,uint64_t seed){
     constexpr size_t NUM_CELLS = 1000000;
     constexpr int GENERATIONS = 100;
     constexpr double mutation_rate = 0.0001;
 
     Population pop(NUM_CELLS);
-    std::mt19937_64 rng(42);
+    std::mt19937_64 rng(seed);
     std::uniform_real_distribution<double>
         prob(0.0, 1.0);
     Population next_pop(NUM_CELLS);
@@ -151,6 +151,30 @@ int main()
         pop.age.swap(next_pop.age);
 
         pop.passenger_mutations.swap(next_pop.passenger_mutations);
+
+        for(size_t i = 0; i < NUM_CELLS; i++)
+        {
+            CellState state =
+                calculate_cell_state(
+                    pop.genome[i],
+                    pop.age[i],
+                    pop.passenger_mutations[i]);
+
+            pop.fitness[i] =
+                calculate_fitness(state);
+        }
+
+        auto clone_stats =
+        compute_clone_stats(
+            pop,simulation_id,
+            gen);
+
+        export_clone_dataset(
+            clone_stats,
+            "clone_dataset.csv",
+            simulation_id == 0 && gen == 0);
+
+
     }
 
     // =========================
@@ -163,8 +187,6 @@ int main()
 
         pop.fitness[i] = calculate_fitness(state);
     }
-    // Export synthetic dataset
-    export_dataset(pop, "cells.csv", GENERATIONS);
 
     
     // =========================
@@ -342,6 +364,22 @@ int main()
             << gene_counts[i]
             << '\n';
     }
+}
+
+
+int main()
+{
+    constexpr int NUM_SIMULATIONS = 10;
+
+    for(int sim = 0;
+        sim < NUM_SIMULATIONS;
+        sim++)
+    {
+        run_simulation(
+            sim,
+            42 + sim);
+    }
+
 
     return 0;
 }

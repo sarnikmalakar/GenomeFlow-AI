@@ -28,9 +28,14 @@ static void BM_FitnessKernel(
     {
         for(size_t i = 0; i < N; i++)
         {
+            CellState cell =
+                calculate_cell_state(
+                    genomes[i],
+                    0,      // age
+                    0);     // passenger mutations
+
             fitness[i] =
-                calculate_fitness(
-                    genomes[i]);
+                calculate_fitness(cell);
         }
 
         benchmark::ClobberMemory();

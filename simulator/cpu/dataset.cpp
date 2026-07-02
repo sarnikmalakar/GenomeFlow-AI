@@ -1,16 +1,25 @@
 #include "dataset.hpp"
-#include "population.hpp"
-#include "genome.hpp"
+#include "clone_stats.hpp"
+#include "clone.hpp"
 
 #include <fstream>
 #include <iostream>
 
-void export_dataset(
-    const Population& pop,
+void export_clone_dataset(
+    const std::vector<CloneStats>& clones,
     const std::string& filename,
-    int generation)
+    bool write_header)
 {
-    std::ofstream file(filename);
+    std::ofstream file;
+
+    if(write_header)
+    {
+        file.open(filename);
+    }
+    else
+    {
+        file.open(filename, std::ios::app);
+    }
 
     if(!file.is_open())
     {
@@ -23,80 +32,41 @@ void export_dataset(
     // =========================
     // CSV Header
     // =========================
-
-    file
-        << "cell_id,"
-        << "generation,"
-        << "tp53,"
-        << "kras,"
-        << "egfr,"
-        << "brca1,"
-        << "brca2,"
-        << "apc,"
-        << "pik3ca,"
-        << "pten,"
-        << "mutation_count,"
-        << "fitness\n";
-
+    if(write_header)
+    {
+        file
+            << "simulation_id,"
+            << "generation,"
+            << "clone,"
+            << "clone_size,"
+            << "clone_fraction,"
+            << "average_fitness,"
+            << "average_age,"
+            << "average_passenger_mutations,"
+            << "driver_mutation_count,"
+            << "aggressiveness_score\n";
+            //<< "aggressive\n";
+    }
     // =========================
     // Export Every Cell
     // =========================
 
-    for(size_t i = 0; i < pop.genome.size(); i++)
-    {
-        Genome genome = pop.genome[i];
-
-        bool tp53 =
-            (genome & (1u << static_cast<int>(Gene::TP53))) != 0;
-
-        bool kras =
-            (genome & (1u << static_cast<int>(Gene::KRAS))) != 0;
-
-        bool egfr =
-            (genome & (1u << static_cast<int>(Gene::EGFR))) != 0;
-
-        bool brca1 =
-            (genome & (1u << static_cast<int>(Gene::BRCA1))) != 0;
-
-        bool brca2 =
-            (genome & (1u << static_cast<int>(Gene::BRCA2))) != 0;
-
-        bool apc =
-            (genome & (1u << static_cast<int>(Gene::APC))) != 0;
-
-        bool pik3ca =
-            (genome & (1u << static_cast<int>(Gene::PIK3CA))) != 0;
-
-        bool pten =
-            (genome & (1u << static_cast<int>(Gene::PTEN))) != 0;
-
-        int mutation_count = 0;
-
-        for(int g = 0;
-            g < static_cast<int>(Gene::COUNT);
-            g++)
-        {
-            if(genome & (1u << g))
-            {
-                mutation_count++;
-            }
-        }
-
-        file
-            << i << ","
-            << generation << ","
-            << tp53 << ","
-            << kras << ","
-            << egfr << ","
-            << brca1 << ","
-            << brca2 << ","
-            << apc << ","
-            << pik3ca << ","
-            << pten << ","
-            << mutation_count << ","
-            << pop.fitness[i]
-            << '\n';
-    }
+    for(const CloneStats& clone : clones)
+{
+    file
+    << clone.simulation_id << ","
+    << clone.generation << ","
+    << genome_to_string(clone.genome) << ","
+    << clone.clone_size << ","
+    << clone.clone_fraction << ","
+    << clone.average_fitness << ","
+    << clone.average_age << ","
+    << clone.average_passenger_mutations << ","
+    << static_cast<int>(clone.driver_mutation_count) << ","
+    << clone.aggressiveness_score 
+    //<< clone.aggressive
+    << '\n';
+}
 
     file.close();
 

@@ -1,5 +1,6 @@
 .
 ├── build
+│   ├── clone_dataset.csv
 │   ├── CMakeCache.txt
 │   ├── CMakeFiles
 │   │   ├── 4.2.3
@@ -78,14 +79,20 @@
 ├── LICENSE
 ├── ml
 │   ├── data
-│   │   └── clone_dataset.csv
-│   ├── evaluate.py
+│   │   ├── clone_dataset.csv
+│   │   └── processed_dataset.csv
 │   ├── main.py
 │   ├── models
+│   │   └── xgboost_model.joblib
 │   ├── predict.py
 │   ├── preprocess.py
 │   ├── pyproject.toml
 │   ├── README.md
+│   ├── reports
+│   │   ├── confusion_matrix.png
+│   │   ├── feature_importance.png
+│   │   ├── roc_curve.png
+│   │   └── shap_summary.png
 │   ├── train.py
 │   └── uv.lock
 ├── simulator
@@ -112,4 +119,4 @@
 │       └── population.hpp
 └── structure.txt
 
-25 directories, 88 files
+26 directories, 94 files

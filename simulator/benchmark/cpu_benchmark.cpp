@@ -1,45 +1,32 @@
 #include <benchmark/benchmark.h>
 
-#include <algorithm>
 #include <random>
-#include <unordered_map>
 #include <vector>
 
-#include "fitness.hpp"
-#include "genome.hpp"
+#include "population.hpp"
+#include "simulation.hpp"
+#include "selection.hpp"
+#include "mutation.hpp"
 
 // ======================================================
 // Fitness Kernel Benchmark
 // ======================================================
 
-static void BM_FitnessKernel(
-    benchmark::State& state)
+static void BM_FitnessKernel(benchmark::State& state)
 {
     const size_t N = state.range(0);
 
-    std::vector<Genome> genomes(
-        N,
-        0b111);
-
-    std::vector<float> fitness(
-        N);
+    Population pop(N);
 
     for(auto _ : state)
     {
-        for(size_t i = 0; i < N; i++)
-        {
-            CellState cell =
-                calculate_cell_state(
-                    genomes[i],
-                    0,      // age
-                    0);     // passenger mutations
-
-            fitness[i] =
-                calculate_fitness(cell);
-        }
+        compute_population_fitness(pop);
 
         benchmark::ClobberMemory();
     }
+
+    state.SetItemsProcessed(
+        state.iterations() * N);
 }
 
 BENCHMARK(BM_FitnessKernel)
@@ -52,29 +39,28 @@ BENCHMARK(BM_FitnessKernel)
 // Mutation Kernel Benchmark
 // ======================================================
 
-static void BM_MutationKernel(
-    benchmark::State& state)
+static void BM_MutationKernel(benchmark::State& state)
 {
     const size_t N = state.range(0);
 
-    std::vector<Genome> genomes(
-        N,
-        0);
+    Population pop(N);
 
     std::mt19937_64 rng(42);
 
+    constexpr double mutation_rate = 0.0001;
+
     for(auto _ : state)
     {
-        for(size_t i = 0; i < N; i++)
-        {
-            int gene = rng() % 8;
-
-            genomes[i] |=
-                (1u << gene);
-        }
+        mutate_population(
+            pop,
+            rng,
+            mutation_rate);
 
         benchmark::ClobberMemory();
     }
+
+    state.SetItemsProcessed(
+        state.iterations() * N);
 }
 
 BENCHMARK(BM_MutationKernel)
@@ -87,44 +73,32 @@ BENCHMARK(BM_MutationKernel)
 // Selection Kernel Benchmark
 // ======================================================
 
-static void BM_SelectionKernel(
-    benchmark::State& state)
+static void BM_SelectionKernel(benchmark::State& state)
 {
     const size_t N = state.range(0);
 
-    std::vector<double> cumulative(
-        N);
+    Population pop(N);
+    Population next_pop(N);
 
-    for(size_t i = 0; i < N; i++)
-    {
-        cumulative[i] =
-            static_cast<double>(i + 1);
-    }
+    std::vector<double> cumulative(N);
 
     std::mt19937_64 rng(42);
 
-    std::uniform_real_distribution<double>
-        dist(
-            0.0,
-            cumulative.back());
+    compute_population_fitness(pop);
 
     for(auto _ : state)
     {
-        for(size_t i = 0; i < N; i++)
-        {
-            double r =
-                dist(rng);
+        reproduce_population(
+            pop,
+            next_pop,
+            cumulative,
+            rng);
 
-            auto it =
-                std::lower_bound(
-                    cumulative.begin(),
-                    cumulative.end(),
-                    r);
-
-            benchmark::DoNotOptimize(
-                it);
-        }
+        benchmark::ClobberMemory();
     }
+
+    state.SetItemsProcessed(
+        state.iterations() * N);
 }
 
 BENCHMARK(BM_SelectionKernel)
@@ -134,48 +108,55 @@ BENCHMARK(BM_SelectionKernel)
     ->Arg(1000000);
 
 // ======================================================
-// Clone Counting Benchmark
+// Whole Simulation Benchmark
 // ======================================================
 
-static void BM_CloneCounting(
-    benchmark::State& state)
+static void BM_WholeSimulation(benchmark::State& state)
 {
     const size_t N = state.range(0);
 
-    std::vector<Genome> genomes(
-        N);
+    Population pop(N);
+    Population next_pop(N);
 
-    for(size_t i = 0; i < N; i++)
-    {
-        genomes[i] =
-            static_cast<Genome>(
-                i % 256);
-    }
+    std::vector<double> cumulative(N);
+
+    std::mt19937_64 rng(42);
+
+    constexpr double mutation_rate = 0.0001;
 
     for(auto _ : state)
     {
-        std::unordered_map<
-            Genome,
-            size_t> clone_counts;
+        compute_population_fitness(pop);
 
-        for(auto genome : genomes)
-        {
-            clone_counts[genome]++;
-        }
+        reproduce_population(
+            pop,
+            next_pop,
+            cumulative,
+            rng);
+
+        mutate_population(
+            next_pop,
+            rng,
+            mutation_rate);
+
+        pop.genome.swap(next_pop.genome);
+        pop.age.swap(next_pop.age);
+        pop.passenger_mutations.swap(
+            next_pop.passenger_mutations);
 
         benchmark::ClobberMemory();
     }
+
+    state.SetItemsProcessed(
+        state.iterations() * N);
 }
 
-BENCHMARK(BM_CloneCounting)
+BENCHMARK(BM_WholeSimulation)
     ->Arg(1000)
     ->Arg(10000)
     ->Arg(100000)
     ->Arg(1000000);
 
 // ======================================================
-// Benchmark Entry Point
-// ======================================================
 
 BENCHMARK_MAIN();
-

@@ -9,25 +9,10 @@
 #include "clone.hpp"
 #include "dataset.hpp"
 #include "clone_stats.hpp"
+#include "simulation.hpp"
+#include "selection.hpp"
+#include "mutation.hpp"
 
-void mutate(
-    Genome& genome,
-    std::mt19937_64& rng)
-{
-    static std::discrete_distribution<int> gene_dist(
-{
-    0.30,   // TP53
-    0.22,   // KRAS
-    0.15,   // EGFR
-    0.05,   // BRCA1
-    0.05,   // BRCA2
-    0.08,   // APC
-    0.10,   // PIK3CA
-    0.05    // PTEN
-});
-    int gene = gene_dist(rng);
-    genome |= (1u << gene);
-}
 
 void run_simulation(int simulation_id,uint64_t seed){
     constexpr size_t NUM_CELLS = 1000000;
@@ -36,8 +21,7 @@ void run_simulation(int simulation_id,uint64_t seed){
 
     Population pop(NUM_CELLS);
     std::mt19937_64 rng(seed);
-    std::uniform_real_distribution<double>
-        prob(0.0, 1.0);
+
     Population next_pop(NUM_CELLS);
     std::vector<double>
         cumulative(NUM_CELLS);
@@ -49,12 +33,7 @@ void run_simulation(int simulation_id,uint64_t seed){
     for(int gen = 0; gen < GENERATIONS; gen++)
     {
         // Fitness
-        for(size_t i = 0; i < NUM_CELLS; i++)
-        {
-            CellState state = calculate_cell_state(pop.genome[i],pop.age[i],pop.passenger_mutations[i]);
-
-            pop.fitness[i] = calculate_fitness(state);
-        }
+        compute_population_fitness(pop);
 
         // Progress Logging
         if(gen % 10 == 0)
@@ -78,71 +57,19 @@ void run_simulation(int simulation_id,uint64_t seed){
 
         // Cumulative Fitness
 
-        cumulative[0] =
-            pop.fitness[0];
-
-        for(size_t i = 1; i < NUM_CELLS; i++)
-        {
-            cumulative[i] =
-                cumulative[i - 1]
-                + pop.fitness[i];
-        }
-
-        double total_fitness =
-            cumulative.back();
-
-        std::uniform_real_distribution<double>
-            parent_dist(
-                0.0,
-                total_fitness);
-
-        // Selection + Reproduction
-
-        for(size_t i = 0; i < NUM_CELLS; i++)
-        {
-            double r =
-                parent_dist(rng);
-
-            auto it =
-                std::lower_bound(
-                    cumulative.begin(),
-                    cumulative.end(),
-                    r);
-
-            size_t parent = std::min(static_cast<size_t>(std::distance(cumulative.begin(),it)),NUM_CELLS-1);
-
-            next_pop.genome[i] =
-                pop.genome[parent];
-            next_pop.age[i] =
-                pop.age[parent]+1;
-            next_pop.passenger_mutations[i] =
-                pop.passenger_mutations[parent];
-        }
+        reproduce_population(
+        pop,
+        next_pop,
+        cumulative,
+        rng
+    );
 
         // Mutation
 
-        for(size_t i = 0; i < NUM_CELLS; i++)
-{
-    CellState state =
-        calculate_cell_state(next_pop.genome[i],next_pop.age[i],next_pop.passenger_mutations[i]);
-
-    double actual_mutation_rate =
-        mutation_rate *
-        state.mutation_rate *
-        (2.0 - state.dna_repair);
-
-    actual_mutation_rate = std::clamp(actual_mutation_rate, 0.0, 1.0);
-
-    if(prob(rng) < actual_mutation_rate)
-    {
-        next_pop.passenger_mutations[i]++;
-
-        if(prob(rng) < 0.05)
-        {
-            mutate(next_pop.genome[i], rng);
-        }
-    }
-}
+        mutate_population(
+        next_pop,
+        rng,
+        mutation_rate);
 
         // Replace Generation
 
@@ -152,17 +79,7 @@ void run_simulation(int simulation_id,uint64_t seed){
 
         pop.passenger_mutations.swap(next_pop.passenger_mutations);
 
-        for(size_t i = 0; i < NUM_CELLS; i++)
-        {
-            CellState state =
-                calculate_cell_state(
-                    pop.genome[i],
-                    pop.age[i],
-                    pop.passenger_mutations[i]);
-
-            pop.fitness[i] =
-                calculate_fitness(state);
-        }
+        compute_population_fitness(pop);
 
         auto clone_stats =
         compute_clone_stats(
@@ -175,17 +92,6 @@ void run_simulation(int simulation_id,uint64_t seed){
             simulation_id == 0 && gen == 0);
 
 
-    }
-
-    // =========================
-    // Final Fitness
-    // =========================
-
-    for(size_t i = 0; i < NUM_CELLS; i++)
-    {
-        CellState state = calculate_cell_state(pop.genome[i],pop.age[i],pop.passenger_mutations[i]);
-
-        pop.fitness[i] = calculate_fitness(state);
     }
 
     

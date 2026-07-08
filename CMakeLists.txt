@@ -6,11 +6,22 @@ set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
 find_package(OpenMP REQUIRED)
+find_package(benchmark REQUIRED)
+
+# =====================================================
+# CPU Simulator
+# =====================================================
 
 add_executable(
     genomeflow_cpu
+
     simulator/cpu/main.cpp
+
     simulator/cpu/fitness.cpp
+    simulator/cpu/simulation.cpp
+    simulator/cpu/selection.cpp
+    simulator/cpu/mutation.cpp
+
     simulator/cpu/clone.cpp
     simulator/cpu/dataset.cpp
     simulator/cpu/clone_stats.cpp
@@ -28,13 +39,19 @@ target_link_libraries(
     OpenMP::OpenMP_CXX
 )
 
-
-find_package(benchmark REQUIRED)
+# =====================================================
+# CPU Benchmark
+# =====================================================
 
 add_executable(
     cpu_benchmark
+
     simulator/benchmark/cpu_benchmark.cpp
+
     simulator/cpu/fitness.cpp
+    simulator/cpu/simulation.cpp
+    simulator/cpu/selection.cpp
+    simulator/cpu/mutation.cpp
 )
 
 target_include_directories(
@@ -48,5 +65,5 @@ target_link_libraries(
     PRIVATE
     benchmark::benchmark
     benchmark::benchmark_main
+    OpenMP::OpenMP_CXX
 )
-

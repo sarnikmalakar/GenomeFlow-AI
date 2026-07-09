@@ -20,6 +20,7 @@
 │   │   ├── cmake.check_cache
 │   │   ├── CMakeConfigureLog.yaml
 │   │   ├── CMakeDirectoryInformation.cmake
+│   │   ├── CMakeScratch
 │   │   ├── cpu_benchmark.dir
 │   │   │   ├── build.make
 │   │   │   ├── cmake_clean.cmake
@@ -28,16 +29,11 @@
 │   │   │   ├── DependInfo.cmake
 │   │   │   ├── depend.make
 │   │   │   ├── flags.make
-│   │   │   ├── link.d
 │   │   │   ├── link.txt
 │   │   │   ├── progress.make
 │   │   │   └── simulator
 │   │   │       ├── benchmark
-│   │   │       │   ├── cpu_benchmark.cpp.o
-│   │   │       │   └── cpu_benchmark.cpp.o.d
 │   │   │       └── cpu
-│   │   │           ├── fitness.cpp.o
-│   │   │           └── fitness.cpp.o.d
 │   │   ├── FindOpenMP
 │   │   │   ├── ompver_C.bin
 │   │   │   └── ompver_CXX.bin
@@ -49,21 +45,10 @@
 │   │   │   ├── DependInfo.cmake
 │   │   │   ├── depend.make
 │   │   │   ├── flags.make
-│   │   │   ├── link.d
 │   │   │   ├── link.txt
 │   │   │   ├── progress.make
 │   │   │   └── simulator
 │   │   │       └── cpu
-│   │   │           ├── clone.cpp.o
-│   │   │           ├── clone.cpp.o.d
-│   │   │           ├── clone_stats.cpp.o
-│   │   │           ├── clone_stats.cpp.o.d
-│   │   │           ├── dataset.cpp.o
-│   │   │           ├── dataset.cpp.o.d
-│   │   │           ├── fitness.cpp.o
-│   │   │           ├── fitness.cpp.o.d
-│   │   │           ├── main.cpp.o
-│   │   │           └── main.cpp.o.d
 │   │   ├── InstallScripts.json
 │   │   ├── Makefile2
 │   │   ├── Makefile.cmake
@@ -71,7 +56,6 @@
 │   │   ├── progress.marks
 │   │   └── TargetDirectories.txt
 │   ├── cmake_install.cmake
-│   ├── compile_commands.json
 │   ├── cpu_benchmark
 │   ├── genomeflow_cpu
 │   └── Makefile
@@ -95,28 +79,30 @@
 │   │   └── shap_summary.png
 │   ├── train.py
 │   └── uv.lock
+├── README.md
 ├── simulator
 │   ├── benchmark
 │   │   ├── cpu_benchmark.cpp
-│   │   ├── cpu_benchmark.md
-│   │   └── gpu_benchmark.cpp
+│   │   └── cpu_benchmark.md
 │   ├── cpu
 │   │   ├── clone.cpp
 │   │   ├── clone_stats.cpp
 │   │   ├── dataset.cpp
 │   │   ├── fitness.cpp
-│   │   └── main.cpp
-│   ├── gpu
-│   │   ├── fitness_kernel.hip
-│   │   ├── gpu_runner.hpp
-│   │   └── gpu_utils.hpp
+│   │   ├── main.cpp
+│   │   ├── mutation.cpp
+│   │   ├── selection.cpp
+│   │   └── simulation.cpp
 │   └── include
 │       ├── clone.hpp
 │       ├── clone_stats.hpp
 │       ├── dataset.hpp
 │       ├── fitness.hpp
 │       ├── genome.hpp
-│       └── population.hpp
+│       ├── mutation.hpp
+│       ├── population.hpp
+│       ├── selection.hpp
+│       └── simulation.hpp
 └── structure.txt
 
-26 directories, 94 files
+26 directories, 80 files

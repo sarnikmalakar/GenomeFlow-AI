@@ -3,6 +3,10 @@
 #include <algorithm>
 #include <random>
 
+#ifdef _OPENMP
+#include <omp.h>
+#endif
+
 #include "fitness.hpp"
 
 void mutate(
@@ -31,39 +35,53 @@ void mutate_population(
     std::mt19937_64& rng,
     double mutation_rate)
 {
-    std::uniform_real_distribution<double>
-        prob(0.0, 1.0);
-
     const size_t num_cells = pop.genome.size();
 
-    for(size_t i = 0; i < num_cells; i++)
+#pragma omp parallel
     {
-        CellState state =
-            calculate_cell_state(
-                pop.genome[i],
-                pop.age[i],
-                pop.passenger_mutations[i]);
+#ifdef _OPENMP
+        const int thread_id = omp_get_thread_num();
+#else
+        const int thread_id = 0;
+#endif
 
-        double actual_mutation_rate =
-            mutation_rate *
-            state.mutation_rate *
-            (2.0 - state.dna_repair);
+        // Thread-local RNG
+        std::mt19937_64 local_rng(
+            123456789ULL + static_cast<uint64_t>(thread_id));
 
-        actual_mutation_rate =
-            std::clamp(
-                actual_mutation_rate,
-                0.0,
-                1.0);
+        std::uniform_real_distribution<double>
+            prob(0.0, 1.0);
 
-        if(prob(rng) < actual_mutation_rate)
+#pragma omp for schedule(static)
+        for(size_t i = 0; i < num_cells; i++)
         {
-            pop.passenger_mutations[i]++;
-
-            if(prob(rng) < 0.05)
-            {
-                mutate(
+            CellState state =
+                calculate_cell_state(
                     pop.genome[i],
-                    rng);
+                    pop.age[i],
+                    pop.passenger_mutations[i]);
+
+            double actual_mutation_rate =
+                mutation_rate *
+                state.mutation_rate *
+                (2.0 - state.dna_repair);
+
+            actual_mutation_rate =
+                std::clamp(
+                    actual_mutation_rate,
+                    0.0,
+                    1.0);
+
+            if(prob(local_rng) < actual_mutation_rate)
+            {
+                pop.passenger_mutations[i]++;
+
+                if(prob(local_rng) < 0.05)
+                {
+                    mutate(
+                        pop.genome[i],
+                        local_rng);
+                }
             }
         }
     }

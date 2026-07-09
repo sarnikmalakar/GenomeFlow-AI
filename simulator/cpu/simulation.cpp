@@ -1,9 +1,14 @@
 #include "simulation.hpp"
 #include "fitness.hpp"
 
+#ifdef _OPENMP
+#include<omp.h>
+#endif
+
 void compute_population_fitness(
     Population& pop)
 {
+    #pragma omp parallel for schedule(static)
     for(size_t i = 0;
         i < pop.genome.size();
         i++)

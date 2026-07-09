@@ -1,42 +1,73 @@
 # GenomeFlowAI
 
-> A high-performance cancer evolution simulator and explainable machine learning pipeline built in C++20 and Python.
+> **A high-performance cancer evolution simulator and explainable machine learning platform built using C++20, OpenMP, and XGBoost.**
 
-GenomeFlowAI simulates the evolutionary dynamics of cancer cell populations using biologically inspired mutation models and generates large-scale synthetic genomic datasets for machine learning. The project combines high-performance systems programming with explainable AI to study tumor evolution and predict clone aggressiveness.
+GenomeFlowAI simulates the evolutionary dynamics of cancer cell populations using biologically inspired mutation models for major driver genes. The simulator generates large-scale synthetic genomic datasets that are used to train an explainable machine learning model capable of predicting clone aggressiveness.
+
+The project combines **high-performance systems programming**, **parallel computing**, and **machine learning** to create an end-to-end pipeline from cancer evolution simulation to AI-assisted prediction.
+
+---
+
+# Architecture
+
+```
+                    GenomeFlowAI
+
+               C++20 Cancer Simulator
+                        │
+        ┌───────────────┼────────────────┐
+        │               │                │
+   Fitness Kernel   Mutation Kernel  Selection Kernel
+        │               │                │
+        └───────────────┼────────────────┘
+                        │
+              Clone Statistics Engine
+                        │
+             Synthetic Clone Dataset
+                        │
+                Python ML Pipeline
+                        │
+          XGBoost + SHAP Explainability
+                        │
+             Streamlit Prediction App
+```
 
 ---
 
 # Features
 
 - High-performance cancer evolution simulator written in **C++20**
-- Biologically inspired mutation model for major driver genes
+- OpenMP-accelerated CPU kernels
 - Simulation of **1,000,000+ virtual cells**
 - Multi-generation clonal evolution
-- Passenger and driver mutation modelling
-- Clone statistics and dataset generation
+- Driver and passenger mutation modelling
+- Biologically inspired mutation model
+- Clone statistics generation
+- Synthetic genomic dataset generation
 - Automated preprocessing pipeline
-- XGBoost-based aggressiveness prediction
+- XGBoost-based clone aggressiveness prediction
 - SHAP explainability
+- Interactive Streamlit dashboard
 - Google Benchmark performance profiling
 
 ---
 
 # Biology Model
 
-GenomeFlowAI models mutations in several clinically important driver genes:
+GenomeFlowAI models mutations in major cancer driver genes.
 
-| Gene | Biological Effect |
-|-------|-------------------|
-| TP53 | DNA repair reduction, apoptosis suppression |
+| Gene | Biological Role |
+|-------|-----------------|
+| TP53 | DNA repair suppression and apoptosis regulation |
 | KRAS | Increased proliferation |
-| EGFR | Increased cell division |
+| EGFR | Growth signalling |
 | BRCA1 | DNA repair deficiency |
 | BRCA2 | DNA repair deficiency |
-| APC | Increased proliferation |
-| PIK3CA | Growth signalling activation |
-| PTEN | Reduced apoptosis |
+| APC | Growth suppression |
+| PIK3CA | PI3K pathway activation |
+| PTEN | Tumor suppression |
 
-Each virtual cell maintains:
+Each virtual cell maintains
 
 - Driver mutations
 - Passenger mutation count
@@ -48,8 +79,8 @@ Each virtual cell maintains:
 
 The simulator models
 
-- Mutation
-- Cell ageing
+- Mutation accumulation
+- Cellular ageing
 - Clonal evolution
 - Natural selection
 - Population dynamics
@@ -58,34 +89,32 @@ The simulator models
 
 # Machine Learning Pipeline
 
-The generated clone dataset is processed through an end-to-end ML pipeline.
-
 ```
-Simulation
-        │
-        ▼
-Clone Dataset
-        │
-        ▼
-Preprocessing
-        │
-        ▼
+Cancer Evolution Simulation
+            │
+            ▼
+Synthetic Clone Dataset
+            │
+            ▼
+Data Preprocessing
+            │
+            ▼
 Feature Engineering
-        │
-        ▼
+            │
+            ▼
 XGBoost Training
-        │
-        ▼
-Evaluation
-        │
-        ▼
+            │
+            ▼
+Model Evaluation
+            │
+            ▼
 SHAP Explainability
-        │
-        ▼
-Prediction
+            │
+            ▼
+Clone Aggressiveness Prediction
 ```
 
-Features used for training:
+Training features include
 
 - Generation
 - Clone Size
@@ -97,7 +126,7 @@ Features used for training:
 
 ---
 
-# Project Architecture
+# Project Structure
 
 ```
 GenomeFlowAI
@@ -122,78 +151,96 @@ GenomeFlowAI
 │   ├── preprocess.py
 │   ├── train.py
 │   ├── predict.py
-│   └── reports
+│   ├── reports
+│   └── models
+│
+├── app.py
+│
+├── docs
+│   └── cpu_openmp_benchmark.md
 │
 └── CMakeLists.txt
 ```
 
 ---
 
-# Performance Benchmark
+# Performance Optimizations
+
+GenomeFlowAI employs several performance-oriented design choices.
+
+- Structure-of-Arrays (SoA) memory layout
+- OpenMP parallel fitness evaluation
+- OpenMP parallel mutation kernel
+- OpenMP parallel parent selection
+- Thread-local random number generators
+- Cache-friendly memory access
+- Google Benchmark performance profiling
+
+---
+
+# CPU + OpenMP Benchmark
 
 Benchmarked using **Google Benchmark**.
 
-## Fitness Kernel
+| Kernel | Sequential | OpenMP | Speedup |
+|---------|-----------:|--------:|--------:|
+| Fitness Evaluation | 86.18 ms | **38.10 ms** | **2.26×** |
+| Mutation Kernel | 226.77 ms | **82.74 ms** | **2.74×** |
+| Parent Selection | 942.79 ms | **311.31 ms** | **3.03×** |
+| Complete Simulation | 1277.92 ms | **450.56 ms** | **2.84×** |
 
-| Cells | Runtime |
-|---------|---------|
-| 1K | 85 μs |
-| 10K | 843 μs |
-| 100K | 8.50 ms |
-| 1M | 86.18 ms |
+Current throughput:
 
-Throughput
+- **Fitness:** 26.25 Million Cells/sec
+- **Mutation:** 12.09 Million Cells/sec
+- **Selection:** 3.21 Million Cells/sec
+- **Complete Simulation:** 2.22 Million Cells/sec
 
-**11.6 Million Cells / second**
+A detailed benchmark report is available in
 
----
-
-## Mutation Kernel
-
-Throughput
-
-**4.4 Million Cells / second**
-
----
-
-## Selection Kernel
-
-Throughput
-
-**1.06 Million Cells / second**
-
-Selection was identified as the primary computational bottleneck due to cumulative fitness search and binary search based parent selection.
+```
+docs/cpu_openmp_benchmark.md
+```
 
 ---
 
-# Machine Learning Results
+# Explainable Machine Learning
 
-Model
+GenomeFlowAI trains an **XGBoost classifier** to predict clone aggressiveness using synthetic datasets generated by the simulator.
 
-- XGBoost Classifier
+Generated reports include
 
-Metrics
-
-| Metric | Score |
-|---------|-------|
-| Accuracy | 99.91% |
-| Precision | 99.64% |
-| Recall | 100% |
-| F1 Score | 99.82% |
-| ROC-AUC | 1.00 |
-
-Explainability
-
-- SHAP Summary Plot
 - Feature Importance
+- SHAP Summary Plot
 - ROC Curve
 - Confusion Matrix
+
+These visualizations help interpret the contribution of biological features to each prediction.
+
+---
+
+# Interactive Dashboard
+
+GenomeFlowAI includes a Streamlit dashboard for interactive inference.
+
+Features
+
+- Clone aggressiveness prediction
+- Prediction confidence
+- Biological feature visualization
+- Simple interactive interface
+
+Launch locally
+
+```bash
+streamlit run app.py
+```
 
 ---
 
 # Build
 
-Clone
+Clone the repository
 
 ```bash
 git clone https://github.com/<your-username>/GenomeFlowAI.git
@@ -208,7 +255,7 @@ cmake -B build
 Build
 
 ```bash
-cmake --build build
+cmake --build build -j
 ```
 
 Run simulator
@@ -225,7 +272,7 @@ Run benchmark
 
 ---
 
-# ML Pipeline
+# Machine Learning
 
 Install dependencies
 
@@ -235,19 +282,19 @@ cd ml
 uv sync
 ```
 
-Preprocess
+Preprocess dataset
 
 ```bash
 uv run preprocess.py
 ```
 
-Train
+Train model
 
 ```bash
 uv run train.py
 ```
 
-Predict
+Run prediction
 
 ```bash
 uv run predict.py
@@ -259,48 +306,52 @@ uv run predict.py
 
 Training automatically generates
 
-- Feature Importance
-- SHAP Summary
-- ROC Curve
-- Confusion Matrix
-
-under
-
 ```
 ml/reports/
+
+├── feature_importance.png
+├── shap_summary.png
+├── roc_curve.png
+└── confusion_matrix.png
 ```
-
----
-
-# Future Work
-
-- SIMD vectorization (AVX2 / AVX-512)
-- NUMA-aware memory allocation
-- Multi-socket scalability
-- Additional cancer signalling pathways
-- Transformer-based genomic models
-- Distributed simulation
-- Real genomic dataset validation
 
 ---
 
 # Technologies
 
-### Systems
+## Systems Programming
 
 - C++20
 - OpenMP
 - Google Benchmark
 - CMake
 
-### Machine Learning
+## Machine Learning
 
 - Python
 - XGBoost
 - SHAP
+- Scikit-learn
 - Pandas
 - NumPy
-- Scikit-learn
+
+## Visualization
+
+- Streamlit
+- Matplotlib
+
+---
+
+# Future Work
+
+- SIMD vectorization (AVX2 / AVX-512)
+- Parallel prefix-sum optimization
+- NUMA-aware memory allocation
+- HIP/ROCm GPU acceleration
+- Multi-node distributed simulation
+- Integration with TCGA genomic datasets
+- Graph neural networks for clonal evolution
+- Transformer-based genomic risk prediction
 
 ---
 
@@ -312,8 +363,6 @@ MIT License
 
 # Author
 
-**Sarnik Malakar**
+## Sarnik Malakar
 
-Computer Science Engineer
-
-Interested in High Performance Computing, Systems Programming and Machine Learning Infrastructure.
+Computer Science graduate passionate about **high-performance computing, systems programming, machine learning infrastructure, and computational biology**. I enjoy building efficient software that combines low-level optimization with intelligent systems, especially at the intersection of mathematics, parallel computing, and AI.

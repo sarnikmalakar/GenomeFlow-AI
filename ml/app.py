@@ -3,6 +3,12 @@ import pandas as pd
 import streamlit as st
 from pathlib import Path
 
+BASE_DIR = Path(__file__).resolve().parent
+
+MODEL_PATH = BASE_DIR / "models" / "xgboost_model.joblib"
+REPORTS_DIR = BASE_DIR / "reports"
+DATA_DIR = BASE_DIR / "data"
+
 # ==========================================================
 # Page Configuration
 # ==========================================================
@@ -17,10 +23,8 @@ st.set_page_config(
 # Load Model
 # ==========================================================
 
-MODEL_PATH = Path("models/xgboost_model.joblib")
-
 if not MODEL_PATH.exists():
-    st.error("Model not found!")
+    st.error(f"Model not found!\nExpected at:\n{MODEL_PATH}")
     st.stop()
 
 model = joblib.load(MODEL_PATH)
@@ -216,45 +220,45 @@ associated with slower tumour progression.
 
 st.divider()
 
-st.header("Training Reports")
+# st.header("Training Reports")
 
-tab1,tab2,tab3,tab4 = st.tabs([
-    "Feature Importance",
-    "SHAP",
-    "ROC Curve",
-    "Confusion Matrix"
-])
+# tab1,tab2,tab3,tab4 = st.tabs([
+#     "Feature Importance",
+#     "SHAP",
+#     "ROC Curve",
+#     "Confusion Matrix"
+# ])
 
-with tab1:
+# with tab1:
 
-    path="reports/feature_importance.png"
+#     path="reports/feature_importance.png"
 
-    if Path(path).exists():
-        st.image(path,use_container_width=True)
+#     if Path(path).exists():
+#         st.image(path,use_container_width=True)
 
-with tab2:
+# with tab2:
 
-    path="reports/shap_summary.png"
+#     path="reports/shap_summary.png"
 
-    if Path(path).exists():
-        st.image(path,use_container_width=True)
+#     if Path(path).exists():
+#         st.image(path,use_container_width=True)
 
-with tab3:
+# with tab3:
 
-    path="reports/roc_curve.png"
+#     path="reports/roc_curve.png"
 
-    if Path(path).exists():
-        st.image(path,use_container_width=True)
+#     if Path(path).exists():
+#         st.image(path,use_container_width=True)
 
-with tab4:
+# with tab4:
 
-    path="reports/confusion_matrix.png"
+#     path="reports/confusion_matrix.png"
 
-    if Path(path).exists():
-        st.image(path,use_container_width=True)
+#     if Path(path).exists():
+#         st.image(path,use_container_width=True)
 
-st.divider()
+# st.divider()
 
-st.caption(
-    "GenomeFlowAI • High-Performance Cancer Evolution Simulation & Explainable AI"
-)
+# st.caption(
+#     "GenomeFlowAI • High-Performance Cancer Evolution Simulation & Explainable AI"
+# )
